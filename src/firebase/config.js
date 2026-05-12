@@ -16,8 +16,7 @@ if (missing.length > 0) {
   console.error(
     "[Firebase] Missing environment variables:",
     missing.join(", "),
-    "
-Add them to your .env file (local) or Vercel → Settings → Environment Variables (production)."
+    "\nAdd them to your .env file (local) or Vercel → Settings → Environment Variables (production)."
   );
 }
 
