@@ -175,8 +175,7 @@ function CheckoutModal({ cart, total, onClose, userName, currentUser, paymentCon
     }
   };
 
-  const itemsList = cart.map((p) => `• ${p.name} (${p.duration}) - Rs. ${p.price}`).join("
-");
+  const itemsList = cart.map((p) => `• ${p.name} (${p.duration}) - Rs. ${p.price}`).join("\n");
   const waMessage = encodeURIComponent(
     `🎮 *SAMURA XITER — PAYMENT CONFIRMATION*
 
