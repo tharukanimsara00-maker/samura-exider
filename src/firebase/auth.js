@@ -1,9 +1,11 @@
 // Developer: AKARSHANA
-// src/firebase/auth.js — with single-session enforcement
+// src/firebase/auth.js — with single-session enforcement + mobile Google fix
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider,
   signOut,
   updateProfile,
@@ -13,6 +15,13 @@ import { auth, db } from "./config";
 
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: "select_account" });
+
+// Detect mobile/tablet — popups get blocked on mobile browsers
+function isMobileDevice() {
+  return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(
+    navigator.userAgent
+  );
+}
 
 // ─── Generate a unique session token ────────────────────────
 function generateSessionToken() {
@@ -72,11 +81,28 @@ export async function loginWithEmail(email, password) {
 }
 
 // ─── Google Sign-In ─────────────────────────────────────────
+// Mobile → signInWithRedirect (popups are blocked on mobile browsers)
+// Desktop → signInWithPopup (instant, no full-page reload)
 export async function loginWithGoogle() {
+  if (isMobileDevice()) {
+    await signInWithRedirect(auth, googleProvider);
+    return null; // page will reload; result handled by handleGoogleRedirect()
+  }
   const cred = await signInWithPopup(auth, googleProvider);
   await createUserDoc(cred.user);
   await setSessionToken(cred.user.uid);
   return cred.user;
+}
+
+// ─── Handle Google Redirect Result (called on AuthPage mount) ─
+export async function handleGoogleRedirect() {
+  const cred = await getRedirectResult(auth);
+  if (cred) {
+    await createUserDoc(cred.user);
+    await setSessionToken(cred.user.uid);
+    return cred.user;
+  }
+  return null;
 }
 
 // ─── Sign Out ───────────────────────────────────────────────
