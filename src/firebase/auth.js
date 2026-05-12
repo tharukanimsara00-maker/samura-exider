@@ -8,7 +8,7 @@ import {
   signOut,
   updateProfile,
 } from "firebase/auth";
-import { doc, setDoc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "./config";
 
 const googleProvider = new GoogleAuthProvider();
@@ -27,10 +27,10 @@ function generateSessionToken() {
 async function setSessionToken(uid) {
   const token = generateSessionToken();
   localStorage.setItem("_st_" + uid, token);
-  await updateDoc(doc(db, "users", uid), {
+  await setDoc(doc(db, "users", uid), {
     sessionToken: token,
     lastLoginAt:  serverTimestamp(),
-  });
+  }, { merge: true });
   return token;
 }
 
